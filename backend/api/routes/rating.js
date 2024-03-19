@@ -7,18 +7,18 @@ function isLoggedIn(req, res, next) {
 }
 
 // GET request for retrieving all ratings
-router.get("/", ratingController.rating_list);
+router.get("/", ratingController.getAllRatings);
 
 // GET request for retrieving one rating
-router.get("/:id", ratingController.rating_detail);
+router.get("/:id", ratingController.getRatingById);
 
 // POST request for creating a rating
-router.post("/create", isLoggedIn, ratingController.rating_create);
+router.post("/", isLoggedIn, ratingController.createRating);
 
-// POST request for creating a rating
-router.post("/:id/delete", isLoggedIn, ratingController.rating_delete);
+// DELETE request for deleting a rating
+router.delete("/:id", isLoggedIn, ratingController.deleteRating);
 
-// POST request for updating a rating
-router.post("/:id/update", isLoggedIn, ratingController.rating_update);
+// PATCH request for updating a rating
+router.patch("/:id", isLoggedIn, ratingController.updateRating);
 
 module.exports = router;
