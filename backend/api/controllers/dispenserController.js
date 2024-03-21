@@ -1,58 +1,84 @@
+const { Op } = require("sequelize");
 const Dispenser = require("../models/dispenserModel.js");
 const asyncHandler = require("express-async-handler");
 
 // Create
 // JSON in http request so just extract that and then dispenser.create
-exports.createDispenser = asyncHandler(async (req, res) => {
+exports.createDispenser = asyncHandler(async (req, res, next) => {
   const dispenser = await Dispenser.create(req.body);
-  return JSON.stringify(dispenser);
+  res.send(JSON.stringify(dispenser, null, 2));
 });
 
 // Delete
-exports.deleteDispenser = asyncHandler(async (req, res) => {
+exports.deleteDispenser = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
   await Dispenser.destroy({
     where: { dispenserId: id },
   });
-  return res.status(200).send("You've successfully deleted!");
+  res.send(res.status(200).send("You've successfully deleted!"));
 });
 
 // Update
-exports.updateDispenser = asyncHandler(async (req, res) => {
+exports.updateDispenser = asyncHandler(async (req, res, next) => {
   const id = req.params.dispenserID;
   const updatedDispenser = await Dispenser.update(req.body, {
     where: { dispenserId: id },
   });
-  return JSON.stringify(updatedDispenser);
 });
 
-// Find dispensers depending on if the user inputted a location or avgRating
-// TODO: Later implement a means of requesting dispensers to be returned based on multiple locations (ex. water dispensers
-// in Olin + Sci li)
-exports.dispenserByLocation = asyncHandler(async (req, res) => {
-  let whereClause = {};
-  if (req.params.locationId != null) {
-    whereClause.location_id = req.params.locationId;
+// See posts here:
+// https://stackoverflow.com/questions/8806844/
+// https://stackoverflow.com/questions/57613011/
+// https://stackoverflow.com/questions/207477/
+exports.getDispensersByOr = asyncHandler(async (req, res, next) => {
+  let whereClause = [];
+  if (req.query.locationId != null) {
+    whereClause.push({ locationId: req.query.locationId });
   }
-  if (req.params.avgRating != null) {
-    whereClause.avg_rating = req.params.avgRating;
+  if (req.query.floorNum != null) {
+    whereClause.push({ floorNum: req.query.floorNum });
+  }
+  if (req.query.avgRating != null) {
+    whereClause.push({ avgRating: req.query.avgRating });
   }
 
-  const dispensersInLocation = await Dispenser.findAll({
-    where: whereClause,
+  const dispenserByFilter = await Dispenser.findAll({
+    where: {
+      [Op.or]: whereClause,
+    },
   });
-  return JSON.stringify(dispensersInLocation);
+  res.send(JSON.stringify(dispenserByFilter, null, 2));
+});
+
+exports.getDispensersByAnd = asyncHandler(async (req, res, next) => {
+  let whereClause = [];
+  if (req.query.locationId != null) {
+    whereClause.push({ locationId: req.query.locationId });
+  }
+  if (req.query.floorNum != null) {
+    whereClause.push({ floorNum: req.query.floorNum });
+  }
+  if (req.query.avgRating != null) {
+    whereClause.push({ avgRating: req.query.avgRating });
+  }
+
+  const dispensersByFilter = await Dispenser.findAll({
+    where: {
+      [Op.and]: whereClause,
+    },
+  });
+  res.send(JSON.stringify(dispensersByFilter, null, 2));
 });
 
 // Find dispenser by ID
-exports.dispenserById = asyncHandler(async (req, res) => {
-  const id = req.params.dispenserId;
+exports.getDispenserById = asyncHandler(async (req, res, next) => {
+  const id = req.params.id;
   const dispenser = await Dispenser.findByPk(id);
-  return JSON.stringify(dispenser);
+  res.send(JSON.stringify(dispenser, null, 2));
 });
 
 // Find all dispensers
-exports.dispensers = asyncHandler(async (req, res) => {
+exports.getDispensers = asyncHandler(async (req, res, next) => {
   const dispensers = await Dispenser.findAll();
-  return JSON.stringify(dispensers);
+  res.send(JSON.stringify(dispensers, null, 2));
 });
