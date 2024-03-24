@@ -13,17 +13,22 @@ passport.use(
       passReqToCallback: true,
     },
     async function (request, accessToken, refreshToken, profile, done) {
-      const [user, created] = await User.findOrCreate({
-        where: { email: profile.email },
-        defaults: {
-            firstName: profile.name['givenName'],
-            lastName: profile.name['familyName'],
-            token: accessToken,
-            refreshToken: refreshToken,
-            uniqueId: profile.id,
-        }
-      });
-      return done(created, user);
+      try {
+        const [user, created] = await User.findOrCreate({
+          where: { email: profile.email },
+          defaults: {
+              firstName: profile.name['givenName'],
+              lastName: profile.name['familyName'],
+              token: accessToken,
+              refreshToken: refreshToken,
+              uniqueId: profile.id,
+          }
+        });
+        return done(created, user);
+      } catch (err) {
+        console.log(err);
+        return done(err);
+      }
     }
   )
 );
