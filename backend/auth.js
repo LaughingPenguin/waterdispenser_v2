@@ -24,7 +24,17 @@ passport.use(
               uniqueId: profile.id,
           }
         });
-        return done(created, user);
+        /* Issue 500 fixed for now, suggestion from
+           https://stackoverflow.com/questions/66787212
+
+           Also look at https://github.com/jaredhanson/passport-facebook/issues/100
+           if future issues arise with 500 error instead of redirect on
+           successful authentication.
+
+           Currently, there is a 500 error on failureRedirect but that is likely
+           because there is nothing to handle the error message.
+        */
+        return done(null, user);
       } catch (err) {
         console.log(err);
         return done(err);
