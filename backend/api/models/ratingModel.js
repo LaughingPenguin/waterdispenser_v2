@@ -4,7 +4,7 @@
 const { DataTypes, Model, Sequelize } = require("sequelize");
 const sequelize = require("../../database/db.js").sequelize;
 const User = require("./userModel.js");
-// const Dispenser = require("./dispenserModel.js");
+const Dispenser = require("./dispenserModel.js");
 
 class Rating extends Model {}
 const attributes = {
@@ -46,12 +46,12 @@ Rating.belongsTo(User, {
     name: "userId",
   },
 });
-// Rating.belongsTo(Dispenser, {
-//   foreignKey: {
-//     type: DataTypes.INTEGER,
-//     field: "dispenser_id",
-//     name: "dispenserId",
-//   },
-// });
+Rating.belongsTo(Dispenser, {
+  foreignKey: {
+    type: DataTypes.INTEGER,
+    field: "dispenser_id",
+    name: "dispenserId",
+  },
+});
 
 module.exports = Rating
